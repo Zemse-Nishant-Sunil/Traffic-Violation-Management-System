@@ -42,21 +42,28 @@ const userSchema = new mongoose.Schema(
       required: true
     },
 
-    license: {
-      type: String,
-      required: true,
-      unique: true
-    },
+   license: {
+  type: String,
+  unique: true,
+  sparse: true,
+  required: function () {
+    return this.role === "user";
+  }
+},
 
-    vehicleNumber: {
-      type: String,
-      required: true
-    },
+vehicleNumber: {
+  type: String,
+  required: function () {
+    return this.role === "user";
+  }
+},
 
-    vehicleType: {
-      type: String,
-      required: true
-    },
+vehicleType: {
+  type: String,
+  required: function () {
+    return this.role === "user";
+  }
+},
 
     address: {
       type: String,

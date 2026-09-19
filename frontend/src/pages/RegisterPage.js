@@ -86,6 +86,7 @@ function RegisterPage() {
   const validate = () => {
     const newErrors = {};
 
+    // Common fields
     if (!formData.role) {
       newErrors.role = "Please select an account type.";
     }
@@ -116,19 +117,22 @@ function RegisterPage() {
       newErrors.gender = "Please select gender.";
     }
 
-    if (!formData.license.trim()) {
-      newErrors.license =
-        "Driving License Number is required.";
-    }
+    // Vehicle information is required ONLY for normal users
+    if (formData.role === "user") {
+      if (!formData.license.trim()) {
+        newErrors.license =
+          "Driving License Number is required.";
+      }
 
-    if (!formData.vehicleNumber.trim()) {
-      newErrors.vehicleNumber =
-        "Vehicle Registration Number is required.";
-    }
+      if (!formData.vehicleNumber.trim()) {
+        newErrors.vehicleNumber =
+          "Vehicle Registration Number is required.";
+      }
 
-    if (!formData.vehicleType) {
-      newErrors.vehicleType =
-        "Please select vehicle type.";
+      if (!formData.vehicleType) {
+        newErrors.vehicleType =
+          "Please select vehicle type.";
+      }
     }
 
     if (!formData.address.trim()) {
@@ -157,7 +161,7 @@ function RegisterPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Register User
+  // Register User / Officer
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -195,12 +199,13 @@ function RegisterPage() {
       return;
     }
 
+    // Officer requires Admin approval
     const userStatus =
       formData.role === "officer"
         ? "pending"
         : "active";
 
-    // Data sent to backend
+    // Common registration data
     const registrationData = {
       name: formData.name.trim(),
       email: formData.email.trim(),
@@ -209,27 +214,29 @@ function RegisterPage() {
       mobile: formData.mobile.trim(),
       dob: formData.dob,
       gender: formData.gender,
-      license: formData.license.trim(),
-      vehicleNumber: formData.vehicleNumber.trim(),
-      vehicleType: formData.vehicleType,
       address: formData.address.trim(),
-      rating: Number(formData.rating) || 0,
       status: userStatus
     };
 
-    console.log(
-      "================================="
-    );
-    console.log(
-      "🚀 ABOUT TO SEND AXIOS REQUEST"
-    );
-    console.log(
-      "DATA BEING SENT:",
-      registrationData
-    );
-    console.log(
-      "================================="
-    );
+    // User-only information
+    if (formData.role === "user") {
+      registrationData.license =
+        formData.license.trim();
+
+      registrationData.vehicleNumber =
+        formData.vehicleNumber.trim();
+
+      registrationData.vehicleType =
+        formData.vehicleType;
+
+      registrationData.rating =
+        Number(formData.rating) || 0;
+    }
+
+    console.log("=================================");
+    console.log("🚀 ABOUT TO SEND AXIOS REQUEST");
+    console.log("DATA BEING SENT:", registrationData);
+    console.log("=================================");
 
     setLoading(true);
 
@@ -239,21 +246,12 @@ function RegisterPage() {
         registrationData
       );
 
-      console.log(
-        "================================="
-      );
-      console.log(
-        "✅ AXIOS REQUEST SUCCESSFUL"
-      );
-      console.log(
-        "SERVER RESPONSE:",
-        response.data
-      );
-      console.log(
-        "================================="
-      );
+      console.log("=================================");
+      console.log("✅ AXIOS REQUEST SUCCESSFUL");
+      console.log("SERVER RESPONSE:", response.data);
+      console.log("=================================");
 
-      // Keep localStorage for Experiment 4
+      // Keep localStorage for Experiment 4 compatibility
       const users =
         JSON.parse(
           localStorage.getItem("tvmsUsers")
@@ -271,9 +269,7 @@ function RegisterPage() {
         JSON.stringify(users)
       );
 
-      console.log(
-        "✅ LOCALSTORAGE UPDATED"
-      );
+      console.log("✅ LOCALSTORAGE UPDATED");
 
       // Success message
       if (formData.role === "officer") {
@@ -305,24 +301,15 @@ function RegisterPage() {
 
       setPasswordStrength(0);
 
-      $(".rating-star").removeClass(
-        "selected"
-      );
+      $(".rating-star").removeClass("selected");
 
     } catch (error) {
-      console.error(
-        "================================="
-      );
+      console.error("=================================");
       console.error(
         "❌ AXIOS REQUEST FAILED"
       );
-      console.error(
-        "ERROR:",
-        error
-      );
-      console.error(
-        "================================="
-      );
+      console.error("ERROR:", error);
+      console.error("=================================");
 
       if (error.response) {
         console.error(
@@ -340,11 +327,13 @@ function RegisterPage() {
             error.response.data.message ||
             "Registration failed."
         });
+
       } else if (error.request) {
         setErrors({
           email:
             "No response received from the TVMS backend. Make sure the backend server is running on port 5000."
         });
+
       } else {
         setErrors({
           email:
@@ -394,9 +383,7 @@ function RegisterPage() {
     setPasswordStrength(0);
     setSuccess("");
 
-    $(".rating-star").removeClass(
-      "selected"
-    );
+    $(".rating-star").removeClass("selected");
   };
 
   return (
@@ -466,10 +453,6 @@ function RegisterPage() {
                   👮 Officer
                 </option>
 
-                <option value="admin">
-                  ⚙️ Admin
-                </option>
-
               </select>
 
               <p className="role-info">
@@ -480,9 +463,6 @@ function RegisterPage() {
                 {formData.role === "officer" &&
                   "Officer registration requires approval from an Admin."}
 
-                {formData.role === "admin" &&
-                  "Admin accounts can only be created by an existing administrator."}
-
               </p>
 
               {errors.role && (
@@ -492,6 +472,7 @@ function RegisterPage() {
               )}
 
             </div>
+
 
             {/* FULL NAME */}
 
@@ -517,6 +498,7 @@ function RegisterPage() {
 
             </div>
 
+
             {/* EMAIL */}
 
             <div className="form-group">
@@ -540,6 +522,7 @@ function RegisterPage() {
               )}
 
             </div>
+
 
             {/* MOBILE */}
 
@@ -566,6 +549,7 @@ function RegisterPage() {
 
             </div>
 
+
             {/* DOB */}
 
             <div className="form-group">
@@ -588,6 +572,7 @@ function RegisterPage() {
               )}
 
             </div>
+
 
             {/* GENDER */}
 
@@ -648,101 +633,117 @@ function RegisterPage() {
 
             </div>
 
-            {/* LICENSE */}
 
-            <div className="form-group">
+            {/* LICENSE - USER ONLY */}
 
-              <label>
-                Driving License Number *
-              </label>
+            {formData.role === "user" && (
 
-              <input
-                type="text"
-                name="license"
-                placeholder="Enter driving license number"
-                value={formData.license}
-                onChange={handleChange}
-              />
+              <div className="form-group">
 
-              {errors.license && (
-                <span className="error-text">
-                  {errors.license}
-                </span>
-              )}
+                <label>
+                  Driving License Number *
+                </label>
 
-            </div>
+                <input
+                  type="text"
+                  name="license"
+                  placeholder="Enter driving license number"
+                  value={formData.license}
+                  onChange={handleChange}
+                />
 
-            {/* VEHICLE NUMBER */}
+                {errors.license && (
+                  <span className="error-text">
+                    {errors.license}
+                  </span>
+                )}
 
-            <div className="form-group">
+              </div>
 
-              <label>
-                Vehicle Registration Number *
-              </label>
+            )}
 
-              <input
-                type="text"
-                name="vehicleNumber"
-                placeholder="Example: MH01AB1234"
-                value={formData.vehicleNumber}
-                onChange={handleChange}
-              />
 
-              {errors.vehicleNumber && (
-                <span className="error-text">
-                  {errors.vehicleNumber}
-                </span>
-              )}
+            {/* VEHICLE NUMBER - USER ONLY */}
 
-            </div>
+            {formData.role === "user" && (
 
-            {/* VEHICLE TYPE */}
+              <div className="form-group">
 
-            <div className="form-group">
+                <label>
+                  Vehicle Registration Number *
+                </label>
 
-              <label>
-                Vehicle Type *
-              </label>
+                <input
+                  type="text"
+                  name="vehicleNumber"
+                  placeholder="Example: MH01AB1234"
+                  value={formData.vehicleNumber}
+                  onChange={handleChange}
+                />
 
-              <select
-                name="vehicleType"
-                value={formData.vehicleType}
-                onChange={handleChange}
-              >
+                {errors.vehicleNumber && (
+                  <span className="error-text">
+                    {errors.vehicleNumber}
+                  </span>
+                )}
 
-                <option value="">
-                  Select Vehicle Type
-                </option>
+              </div>
 
-                <option value="Bike">
-                  Bike
-                </option>
+            )}
 
-                <option value="Car">
-                  Car
-                </option>
 
-                <option value="Truck">
-                  Truck
-                </option>
+            {/* VEHICLE TYPE - USER ONLY */}
 
-                <option value="Bus">
-                  Bus
-                </option>
+            {formData.role === "user" && (
 
-                <option value="Other">
-                  Other
-                </option>
+              <div className="form-group">
 
-              </select>
+                <label>
+                  Vehicle Type *
+                </label>
 
-              {errors.vehicleType && (
-                <span className="error-text">
-                  {errors.vehicleType}
-                </span>
-              )}
+                <select
+                  name="vehicleType"
+                  value={formData.vehicleType}
+                  onChange={handleChange}
+                >
 
-            </div>
+                  <option value="">
+                    Select Vehicle Type
+                  </option>
+
+                  <option value="Bike">
+                    Bike
+                  </option>
+
+                  <option value="Car">
+                    Car
+                  </option>
+
+                  <option value="Truck">
+                    Truck
+                  </option>
+
+                  <option value="Bus">
+                    Bus
+                  </option>
+
+                  <option value="Other">
+                    Other
+                  </option>
+
+                </select>
+
+                {errors.vehicleType && (
+                  <span className="error-text">
+                    {errors.vehicleType}
+                  </span>
+                )}
+
+              </div>
+
+            )}
+
 
             {/* ADDRESS */}
 
@@ -767,6 +768,7 @@ function RegisterPage() {
               )}
 
             </div>
+
 
             {/* PASSWORD */}
 
@@ -811,6 +813,7 @@ function RegisterPage() {
 
             </div>
 
+
             {/* CONFIRM PASSWORD */}
 
             <div className="form-group">
@@ -835,42 +838,48 @@ function RegisterPage() {
 
             </div>
 
-            {/* STAR RATING */}
 
-            <div className="form-group rating-group">
+            {/* STAR RATING - USER ONLY */}
 
-              <label>
-                Rate This Form
-              </label>
+            {formData.role === "user" && (
 
-              <div className="stars">
+              <div className="form-group rating-group">
 
-                {[1, 2, 3, 4, 5].map((rating) => (
+                <label>
+                  Rate This Form
+                </label>
 
-                  <span
-                    key={rating}
-                    className="rating-star"
-                    data-rating={rating}
-                    onClick={() =>
-                      handleRating(rating)
-                    }
-                  >
-                    ★
-                  </span>
+                <div className="stars">
 
-                ))}
+                  {[1, 2, 3, 4, 5].map((rating) => (
+
+                    <span
+                      key={rating}
+                      className="rating-star"
+                      data-rating={rating}
+                      onClick={() =>
+                        handleRating(rating)
+                      }
+                    >
+                      ★
+                    </span>
+
+                  ))}
+
+                </div>
+
+                <p className="rating-value">
+
+                  {formData.rating
+                    ? `You selected ${formData.rating}/5`
+                    : "Select your rating"}
+
+                </p>
 
               </div>
 
-              <p className="rating-value">
+            )}
 
-                {formData.rating
-                  ? `You selected ${formData.rating}/5`
-                  : "Select your rating"}
-
-              </p>
-
-            </div>
 
             {/* BUTTONS */}
 
@@ -899,6 +908,7 @@ function RegisterPage() {
 
           </form>
 
+
           <div className="register-footer">
 
             <p>
@@ -910,6 +920,7 @@ function RegisterPage() {
             </Link>
 
           </div>
+
 
           <Link
             to="/"

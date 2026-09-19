@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, Link } from "react-router-dom";
+import axios from "axios";
 import "./LoginPage.css";
 
 function LoginPage() {
-
   const {
     register,
     handleSubmit,
@@ -14,48 +14,67 @@ function LoginPage() {
   const navigate = useNavigate();
 
   const [loginError, setLoginError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const onSubmit = (data) => {
-
+  const onSubmit = async (data) => {
     setLoginError("");
+    setLoading(true);
 
-    const users =
-      JSON.parse(localStorage.getItem("tvmsUsers")) || [];
+    try {
+      console.log("LOGIN DATA:", data);
 
-    const account = users.find(
-      (user) =>
-        user.email === data.email &&
-        user.password === data.password &&
-        user.role === data.role
-    );
-
-    if (!account) {
-      setLoginError(
-        "Invalid email, password or role."
+      const response = await axios.post(
+        "http://localhost:5000/api/users/login",
+        {
+          email: data.email.trim().toLowerCase(),
+          password: data.password,
+          role: data.role
+        }
       );
-      return;
-    }
 
-    localStorage.setItem(
-      "tvmsLoggedInUser",
-      JSON.stringify(account)
-    );
+      console.log("LOGIN RESPONSE:", response.data);
 
-    if (account.role === "user") {
-      navigate("/user-dashboard");
-    }
+      const account = response.data.user;
 
-    if (account.role === "officer") {
-      navigate("/officer-dashboard");
-    }
+      // Store logged-in user for dashboard use
+      localStorage.setItem(
+        "tvmsLoggedInUser",
+        JSON.stringify(account)
+      );
 
-    if (account.role === "admin") {
-      navigate("/admin-dashboard");
+      // Role-based dashboard navigation
+      if (account.role === "user") {
+        navigate("/user-dashboard");
+      }
+
+      if (account.role === "officer") {
+        navigate("/officer-dashboard");
+      }
+
+      if (account.role === "admin") {
+        navigate("/admin-dashboard");
+      }
+
+    } catch (error) {
+      console.error("LOGIN ERROR:", error);
+
+      if (error.response) {
+        setLoginError(
+          error.response.data.message || "Login failed."
+        );
+      } else if (error.request) {
+        setLoginError(
+          "Unable to connect to the TVMS backend. Make sure the backend server is running on port 5000."
+        );
+      } else {
+        setLoginError("An unexpected error occurred.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-
     <div className="login-page">
 
       <div className="login-container">
@@ -169,8 +188,9 @@ function LoginPage() {
             <button
               type="submit"
               className="login-button"
+              disabled={loading}
             >
-              Login
+              {loading ? "Logging in..." : "Login"}
             </button>
 
           </form>
