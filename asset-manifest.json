@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/Traffic-Violation-Management-System/static/css/main.ca6049ac.css",
+    "main.js": "/Traffic-Violation-Management-System/static/js/main.4a5932b2.js",
+    "index.html": "/Traffic-Violation-Management-System/index.html",
+    "main.ca6049ac.css.map": "/Traffic-Violation-Management-System/static/css/main.ca6049ac.css.map",
+    "main.4a5932b2.js.map": "/Traffic-Violation-Management-System/static/js/main.4a5932b2.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.ca6049ac.css",
+    "static/js/main.4a5932b2.js"
+  ]
+}
