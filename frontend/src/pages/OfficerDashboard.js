@@ -1,61 +1,104 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import DashboardLayout from "../components/DashboardLayout";
 
 function OfficerDashboard() {
 
-  const navigate = useNavigate();
+  const officer = JSON.parse(
+    localStorage.getItem("tvmsLoggedInUser")
+  );
 
-  const officer =
-    JSON.parse(
-      localStorage.getItem("tvmsLoggedInUser")
-    );
-
-  const logout = () => {
-
-    localStorage.removeItem(
-      "tvmsLoggedInUser"
-    );
-
-    navigate("/login");
-  };
+  const services = [
+    {
+      icon: "🔎",
+      title: "Search Vehicle",
+      description: "Search registered vehicle information."
+    },
+    {
+      icon: "👤",
+      title: "Search User",
+      description: "Search citizen account information."
+    },
+    {
+      icon: "🚨",
+      title: "Record Traffic Violation",
+      description: "Record a new traffic violation."
+    },
+    {
+      icon: "📷",
+      title: "Upload Violation Evidence",
+      description: "Upload evidence related to a violation."
+    },
+    {
+      icon: "💰",
+      title: "Issue Fine",
+      description: "Issue a fine for a recorded violation."
+    },
+    {
+      icon: "🔄",
+      title: "Update Violation Status",
+      description: "Update the status of violation cases."
+    },
+    {
+      icon: "📋",
+      title: "View Assigned Cases",
+      description: "View cases assigned to you."
+    },
+    {
+      icon: "💳",
+      title: "View Payments",
+      description: "View traffic fine payment information."
+    },
+    {
+      icon: "📢",
+      title: "Handle Complaints",
+      description: "Review and handle citizen complaints."
+    }
+  ];
 
   return (
+    <DashboardLayout
+      user={officer}
+      role="officer"
+      icon="👮"
+      title="Manage traffic violations and officer services."
+    >
 
-    <div style={{
-      padding: "40px"
-    }}>
+      <section className="dashboard-section">
 
-      <h1>👮 Officer Dashboard</h1>
+        <h3 className="dashboard-section-title">
+          Officer Services
+        </h3>
 
-      <h2>
-        Welcome, {officer?.name || "Officer"}
-      </h2>
+        <div className="dashboard-service-grid">
 
-      <p>
-        Role: Officer
-      </p>
+          {services.map((service, index) => (
 
-      <hr />
+            <div
+              className="dashboard-service-card"
+              key={index}
+            >
 
-      <h3>Officer Services</h3>
+              <div className="service-icon">
+                {service.icon}
+              </div>
 
-      <ul>
-        <li>Search Vehicle</li>
-        <li>Search User</li>
-        <li>Record Traffic Violation</li>
-        <li>Upload Violation Evidence</li>
-        <li>Issue Fine</li>
-        <li>Update Violation Status</li>
-        <li>View Assigned Cases</li>
-        <li>View Payments</li>
-        <li>Handle Complaints</li>
-      </ul>
+              <div className="service-title">
+                {service.title}
+              </div>
 
-      <button onClick={logout}>
-        Logout
-      </button>
+              <div className="service-description">
+                {service.description}
+              </div>
 
-    </div>
+            </div>
+
+          ))}
+
+        </div>
+
+      </section>
+
+    </DashboardLayout>
   );
 }
 

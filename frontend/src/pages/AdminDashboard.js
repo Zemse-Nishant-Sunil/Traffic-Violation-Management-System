@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import DashboardLayout from "../components/DashboardLayout";
 
 function AdminDashboard() {
-  const navigate = useNavigate();
 
   const admin = JSON.parse(
     localStorage.getItem("tvmsLoggedInUser")
@@ -14,14 +13,10 @@ function AdminDashboard() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  const logout = () => {
-    localStorage.removeItem("tvmsLoggedInUser");
-    navigate("/login");
-  };
-
-  // Fetch pending officers
   const fetchPendingOfficers = async () => {
+
     try {
+
       setLoading(true);
       setError("");
 
@@ -30,24 +25,35 @@ function AdminDashboard() {
       );
 
       setPendingOfficers(response.data);
+
     } catch (error) {
-      console.error("Error fetching officers:", error);
+
+      console.error(
+        "Error fetching officers:",
+        error
+      );
 
       setError(
         "Unable to load pending officers. Make sure the backend is running."
       );
+
     } finally {
+
       setLoading(false);
+
     }
   };
+
 
   useEffect(() => {
     fetchPendingOfficers();
   }, []);
 
-  // Approve officer
+
   const approveOfficer = async (id) => {
+
     try {
+
       setMessage("");
       setError("");
 
@@ -58,25 +64,30 @@ function AdminDashboard() {
         }
       );
 
-      setMessage(
-        response.data.message
-      );
+      setMessage(response.data.message);
 
       fetchPendingOfficers();
 
     } catch (error) {
-      console.error("Approval error:", error);
+
+      console.error(
+        "Approval error:",
+        error
+      );
 
       setError(
         error.response?.data?.message ||
         "Unable to approve officer."
       );
+
     }
   };
 
-  // Reject / block officer
+
   const rejectOfficer = async (id) => {
+
     try {
+
       setMessage("");
       setError("");
 
@@ -87,96 +98,131 @@ function AdminDashboard() {
         }
       );
 
-      setMessage(
-        response.data.message
-      );
+      setMessage(response.data.message);
 
       fetchPendingOfficers();
 
     } catch (error) {
-      console.error("Rejection error:", error);
+
+      console.error(
+        "Rejection error:",
+        error
+      );
 
       setError(
         error.response?.data?.message ||
         "Unable to reject officer."
       );
+
     }
   };
 
+
+  const services = [
+    {
+      icon: "👥",
+      title: "Manage Users",
+      description: "Manage registered citizens."
+    },
+    {
+      icon: "👮",
+      title: "Manage Officers",
+      description: "Manage traffic officer accounts."
+    },
+    {
+      icon: "🚗",
+      title: "Manage Vehicles",
+      description: "Manage registered vehicles."
+    },
+    {
+      icon: "🚨",
+      title: "Manage Violations",
+      description: "Manage traffic violation records."
+    },
+    {
+      icon: "💰",
+      title: "Manage Fines",
+      description: "Manage traffic fines."
+    },
+    {
+      icon: "💳",
+      title: "View Payments",
+      description: "View payment information."
+    },
+    {
+      icon: "📋",
+      title: "Assign Officers",
+      description: "Assign officers to cases."
+    },
+    {
+      icon: "📢",
+      title: "View Complaints",
+      description: "Review citizen complaints."
+    },
+    {
+      icon: "📊",
+      title: "View Reports",
+      description: "View system reports."
+    }
+  ];
+
+
   return (
-    <div
-      style={{
-        padding: "40px",
-        fontFamily: "Arial, sans-serif"
-      }}
+
+    <DashboardLayout
+      user={admin}
+      role="admin"
+      icon="⚙️"
+      title="Manage users, officers and traffic system operations."
     >
 
-      <h1>⚙️ Admin Dashboard</h1>
-
-      <h2>
-        Welcome, {admin?.name || "Administrator"}
-      </h2>
-
-      <p>
-        Role: Admin
-      </p>
-
-      <hr />
-
-      {/* Messages */}
+      {/* MESSAGES */}
 
       {message && (
-        <div
-          style={{
-            background: "#d4edda",
-            color: "#155724",
-            padding: "12px",
-            marginBottom: "20px",
-            borderRadius: "6px"
-          }}
-        >
+        <div className="dashboard-success">
           {message}
         </div>
       )}
 
       {error && (
-        <div
-          style={{
-            background: "#f8d7da",
-            color: "#721c24",
-            padding: "12px",
-            marginBottom: "20px",
-            borderRadius: "6px"
-          }}
-        >
+        <div className="dashboard-error">
           {error}
         </div>
       )}
 
-      {/* Officer Approval */}
 
-      <h2>👮 Pending Officer Approvals</h2>
+      {/* OFFICER APPROVAL */}
 
-      {loading ? (
-        <p>Loading pending officers...</p>
-      ) : pendingOfficers.length === 0 ? (
-        <p>
-          No pending officer registration requests.
-        </p>
-      ) : (
-        <div>
+      <section className="dashboard-section">
 
-          {pendingOfficers.map((officer) => (
+        <h3 className="dashboard-section-title">
+          👮 Pending Officer Approvals
+        </h3>
+
+
+        {loading ? (
+
+          <div className="dashboard-card">
+            <p>
+              Loading pending officers...
+            </p>
+          </div>
+
+        ) : pendingOfficers.length === 0 ? (
+
+          <div className="dashboard-card">
+            <p>
+              No pending officer registration requests.
+            </p>
+          </div>
+
+        ) : (
+
+          pendingOfficers.map((officer) => (
+
             <div
+              className="dashboard-card"
               key={officer._id}
-              style={{
-                border: "1px solid #ddd",
-                borderRadius: "10px",
-                padding: "20px",
-                marginBottom: "15px",
-                maxWidth: "700px",
-                background: "#f9f9f9"
-              }}
             >
 
               <h3>
@@ -213,74 +259,73 @@ function AdminDashboard() {
                 {officer.status}
               </p>
 
+
               <button
+                className="dashboard-action-button dashboard-approve"
                 onClick={() =>
                   approveOfficer(officer._id)
                 }
-                style={{
-                  marginRight: "10px",
-                  padding: "10px 18px",
-                  background: "#28a745",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "5px",
-                  cursor: "pointer"
-                }}
               >
                 ✅ Approve
               </button>
 
+
               <button
+                className="dashboard-action-button dashboard-reject"
                 onClick={() =>
                   rejectOfficer(officer._id)
                 }
-                style={{
-                  padding: "10px 18px",
-                  background: "#dc3545",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "5px",
-                  cursor: "pointer"
-                }}
               >
                 ❌ Reject
               </button>
 
             </div>
+
+          ))
+
+        )}
+
+      </section>
+
+
+      {/* ADMIN SERVICES */}
+
+      <section className="dashboard-section">
+
+        <h3 className="dashboard-section-title">
+          ⚙️ Administration
+        </h3>
+
+        <div className="dashboard-service-grid">
+
+          {services.map((service, index) => (
+
+            <div
+              className="dashboard-service-card"
+              key={index}
+            >
+
+              <div className="service-icon">
+                {service.icon}
+              </div>
+
+              <div className="service-title">
+                {service.title}
+              </div>
+
+              <div className="service-description">
+                {service.description}
+              </div>
+
+            </div>
+
           ))}
 
         </div>
-      )}
 
-      <hr />
+      </section>
 
-      {/* Other Admin Functions */}
-
-      <h3>Administration</h3>
-
-      <ul>
-        <li>Manage Users</li>
-        <li>Manage Officers</li>
-        <li>Manage Vehicles</li>
-        <li>Manage Traffic Violations</li>
-        <li>Manage Fines</li>
-        <li>View Payments</li>
-        <li>Assign Officers</li>
-        <li>View Complaints</li>
-        <li>View Reports</li>
-      </ul>
-
-      <button
-        onClick={logout}
-        style={{
-          padding: "10px 20px",
-          cursor: "pointer"
-        }}
-      >
-        Logout
-      </button>
-
-    </div>
+    </DashboardLayout>
   );
 }
 

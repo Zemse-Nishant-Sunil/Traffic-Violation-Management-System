@@ -1,59 +1,94 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import DashboardLayout from "../components/DashboardLayout";
 
 function UserDashboard() {
 
-  const navigate = useNavigate();
+  const user = JSON.parse(
+    localStorage.getItem("tvmsLoggedInUser")
+  );
 
-  const user =
-    JSON.parse(
-      localStorage.getItem("tvmsLoggedInUser")
-    );
-
-  const logout = () => {
-
-    localStorage.removeItem(
-      "tvmsLoggedInUser"
-    );
-
-    navigate("/login");
-  };
+  const services = [
+    {
+      icon: "🚗",
+      title: "View My Vehicles",
+      description: "View your registered vehicles."
+    },
+    {
+      icon: "🚨",
+      title: "Traffic Violations",
+      description: "View your traffic violation records."
+    },
+    {
+      icon: "💰",
+      title: "Fine Details",
+      description: "Check your pending and previous fines."
+    },
+    {
+      icon: "💳",
+      title: "Pay Traffic Fine",
+      description: "Pay your traffic violation fine."
+    },
+    {
+      icon: "🧾",
+      title: "Payment History",
+      description: "View your previous payments."
+    },
+    {
+      icon: "📢",
+      title: "Raise Complaint",
+      description: "Submit a complaint regarding traffic services."
+    },
+    {
+      icon: "⭐",
+      title: "Give Feedback",
+      description: "Share your experience with the system."
+    }
+  ];
 
   return (
+    <DashboardLayout
+      user={user}
+      role="user"
+      icon="👤"
+      title="Access your traffic services and account information."
+    >
 
-    <div style={{
-      padding: "40px"
-    }}>
+      <section className="dashboard-section">
 
-      <h1>👤 User Dashboard</h1>
+        <h3 className="dashboard-section-title">
+          Traffic Services
+        </h3>
 
-      <h2>
-        Welcome, {user?.name || "User"}
-      </h2>
+        <div className="dashboard-service-grid">
 
-      <p>
-        Role: User
-      </p>
+          {services.map((service, index) => (
 
-      <hr />
+            <div
+              className="dashboard-service-card"
+              key={index}
+            >
 
-      <h3>Traffic Services</h3>
+              <div className="service-icon">
+                {service.icon}
+              </div>
 
-      <ul>
-        <li>View My Vehicles</li>
-        <li>View Traffic Violations</li>
-        <li>View Fine Details</li>
-        <li>Pay Traffic Fine</li>
-        <li>Payment History</li>
-        <li>Raise Complaint</li>
-        <li>Give Feedback</li>
-      </ul>
+              <div className="service-title">
+                {service.title}
+              </div>
 
-      <button onClick={logout}>
-        Logout
-      </button>
+              <div className="service-description">
+                {service.description}
+              </div>
 
-    </div>
+            </div>
+
+          ))}
+
+        </div>
+
+      </section>
+
+    </DashboardLayout>
   );
 }
 

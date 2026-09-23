@@ -1,6 +1,6 @@
 import React from "react";
 import {
-  BrowserRouter,
+  HashRouter,
   Routes,
   Route
 } from "react-router-dom";
@@ -12,12 +12,15 @@ import RegisterPage from "./pages/RegisterPage";
 import UserDashboard from "./pages/UserDashboard";
 import OfficerDashboard from "./pages/OfficerDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import PaymentPage from "./pages/PaymentPage";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentCancelled from "./pages/PaymentCancelled";
 
 function App() {
 
   return (
 
-    <BrowserRouter>
+    <HashRouter>
 
       <Routes>
 
@@ -51,9 +54,24 @@ function App() {
           element={<AdminDashboard />}
         />
 
+        <Route
+          path="/payment"
+          element={<PaymentPage />}
+        />
+
+        <Route
+          path="/payment-success"
+          element={<PaymentSuccess />}
+        />
+
+        <Route
+          path="/payment-cancelled"
+          element={<PaymentCancelled />}
+        />
+
       </Routes>
 
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 

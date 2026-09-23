@@ -4,6 +4,8 @@ const cors = require("cors");
 require("dotenv").config();
 
 const userRoutes = require("./routes/userRoutes");
+const paymentRoutes = require("./routes/paymentRoutes");
+
 
 const app = express();
 
@@ -12,6 +14,8 @@ app.use(express.json());
 
 // User routes
 app.use("/api/users", userRoutes);
+// Payment routes
+app.use("/api/payment", paymentRoutes);
 
 const PORT = process.env.PORT || 5000;
 
